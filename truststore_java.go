@@ -71,7 +71,7 @@ func (m *mkcert) checkJava() bool {
 	fatalIfCmdErr(err, "keytool -list", keytoolOutput)
 	// keytool outputs SHA1 and SHA256 (Java 9+) certificates in uppercase hex
 	// with each octet pair delimitated by ":". Drop them from the keytool output
-	keytoolOutput = bytes.Replace(keytoolOutput, []byte(":"), nil, -1)
+	keytoolOutput = bytes.ReplaceAll(keytoolOutput, []byte(":"), nil)
 
 	// pre-Java 9 uses SHA1 fingerprints
 	s1, s256 := sha1.New(), sha256.New()

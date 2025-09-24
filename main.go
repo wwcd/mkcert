@@ -55,7 +55,7 @@ const advancedUsage = `Advanced options:
 	    Generate a certificate for client authentication.
 
 	-ecdsa
-	    Generate a certificate with an ECDSA key.
+	    Generate a certificate with an ECDSA key, default: true.
 
 	-pkcs12
 	    Generate a ".p12" PKCS #12 file, also know as a ".pfx" file,
@@ -94,7 +94,7 @@ func main() {
 		installFlag   = flag.Bool("install", false, "")
 		uninstallFlag = flag.Bool("uninstall", false, "")
 		pkcs12Flag    = flag.Bool("pkcs12", false, "")
-		ecdsaFlag     = flag.Bool("ecdsa", false, "")
+		ecdsaFlag     = flag.Bool("ecdsa", true, "")
 		clientFlag    = flag.Bool("client", false, "")
 		helpFlag      = flag.Bool("help", false, "")
 		carootFlag    = flag.Bool("CAROOT", false, "")
@@ -149,8 +149,10 @@ func main() {
 	}).Run(flag.Args())
 }
 
-const rootName = "rootCA.pem"
-const rootKeyName = "rootCA-key.pem"
+const (
+	rootName    = "rootCA.pem"
+	rootKeyName = "rootCA-key.pem"
+)
 
 type mkcert struct {
 	installMode, uninstallMode bool
@@ -173,7 +175,7 @@ func (m *mkcert) Run(args []string) {
 	if m.CAROOT == "" {
 		log.Fatalln("ERROR: failed to find the default CA location, set one as the CAROOT env var")
 	}
-	fatalIfErr(os.MkdirAll(m.CAROOT, 0755), "failed to create the CAROOT")
+	fatalIfErr(os.MkdirAll(m.CAROOT, 0o755), "failed to create the CAROOT")
 	m.loadCA()
 
 	if m.installMode {
@@ -347,7 +349,7 @@ func storeEnabled(name string) bool {
 	if stores == "" {
 		return true
 	}
-	for _, store := range strings.Split(stores, ",") {
+	for store := range strings.SplitSeq(stores, ",") {
 		if store == name {
 			return true
 		}

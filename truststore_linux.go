@@ -7,7 +7,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,8 +14,10 @@ import (
 )
 
 var (
-	FirefoxProfiles = []string{os.Getenv("HOME") + "/.mozilla/firefox/*",
-		os.Getenv("HOME") + "/snap/firefox/common/.mozilla/firefox/*"}
+	FirefoxProfiles = []string{
+		os.Getenv("HOME") + "/.mozilla/firefox/*",
+		os.Getenv("HOME") + "/snap/firefox/common/.mozilla/firefox/*",
+	}
 	NSSBrowsers = "Firefox and/or Chrome/Chromium"
 
 	SystemTrustFilename string
@@ -49,7 +50,7 @@ func init() {
 }
 
 func (m *mkcert) systemTrustFilename() string {
-	return fmt.Sprintf(SystemTrustFilename, strings.Replace(m.caUniqueName(), " ", "_", -1))
+	return fmt.Sprintf(SystemTrustFilename, strings.ReplaceAll(m.caUniqueName(), " ", "_"))
 }
 
 func (m *mkcert) installPlatform() bool {
@@ -59,7 +60,7 @@ func (m *mkcert) installPlatform() bool {
 		return false
 	}
 
-	cert, err := ioutil.ReadFile(filepath.Join(m.CAROOT, rootName))
+	cert, err := os.ReadFile(filepath.Join(m.CAROOT, rootName))
 	fatalIfErr(err, "failed to read root certificate")
 
 	cmd := commandWithSudo("tee", m.systemTrustFilename())
